@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prof Certs Exam Calendar</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#f5f7fa;--surface:#fff;--ink:#14213d;--muted:#5b6678;--line:#dde3ec;--accent:#0b6e75;--accent-soft:#e0f1f2;--peak:#b4410f;--peak-soft:#fbe9df;--chip:#eef2f7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1624;--surface:#182234;--ink:#eaf0f8;--muted:#9aa7bb;--line:#2a3750;--accent:#4fc3cb;--accent-soft:#15353a;--peak:#f0a073;--peak-soft:#3a2418;--chip:#223049}}
+:root[data-theme="dark"]{--bg:#0f1624;--surface:#182234;--ink:#eaf0f8;--muted:#9aa7bb;--line:#2a3750;--accent:#4fc3cb;--accent-soft:#15353a;--peak:#f0a073;--peak-soft:#3a2418;--chip:#223049}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding:32px 20px 56px}
+header h1{font-size:clamp(26px,4vw,38px);margin:0 0 6px;font-weight:700;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);max-width:70ch}
+.strip{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;margin:28px 0 8px}
+.strip a{display:block;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 4px;text-align:center;font-size:13px;font-weight:600}
+.strip a.peak{background:var(--peak-soft);border-color:var(--peak);color:var(--peak)}
+.strip a:hover,.strip a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.legend{font-size:13px;color:var(--muted);margin:0 0 28px}
+.legend b{color:var(--peak)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
+.month{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;break-inside:avoid;display:flex;flex-direction:column}
+.month.peak{border-color:var(--peak)}
+.mh{padding:16px 18px 12px;border-bottom:1px solid var(--line);background:var(--accent-soft)}
+.month.peak .mh{background:var(--peak-soft)}
+.mh h2{margin:0;font-size:22px;font-weight:700}
+.mh p{margin:2px 0 0;font-size:14px;color:var(--muted)}
+.rows{padding:6px 18px 14px;margin:0}
+.row{padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.cat{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:5px}
+.month.peak .cat{color:var(--peak)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chips span{background:var(--chip);border-radius:4px;padding:2px 8px;font-size:12.5px;font-weight:500}
+.note{font-size:12.5px;color:var(--muted);margin-top:6px}
+.ever{margin-top:40px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px}
+.ever h2{margin:0 0 4px;font-size:22px}
+.ever>p{margin:0 0 14px;color:var(--muted);font-size:14px;max-width:80ch}
+.eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px 24px}
+footer{margin-top:28px;font-size:12.5px;color:var(--muted)}
+@media (max-width:760px){.strip{grid-template-columns:repeat(6,1fr)}.grid{grid-template-columns:1fr}}
+@media print{body{background:#fff}.strip,.legend{display:none}.month,.ever{border-color:#bbb}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Prof Certs Exam Calendar</h1>
+<p>Month-by-month view of which professional certification exams drive learner demand. Lead time is 6–8 weeks, so use each month to plan outreach for the exam windows ahead.</p>
+</header>
+<nav class="strip" id="strip" aria-label="Jump to month"></nav>
+<p class="legend"><b>Orange months</b> are the biggest demand months: May (graduation spike), June (peak urgency) and September.</p>
+<main class="grid" id="grid"></main>
+<section class="ever">
+<h2>Always-on exams (evergreens)</h2>
+<p>Learners test year-round or have frequent windows, so these exams are buyable in any month.</p>
+<div class="eg" id="ever"></div>
+</section>
+<footer>Source: Month-by-month Prof Certs Exam calendar (6–8 week lead time).</footer>
+</div>
+<script>
+var M=[
+["January","New-year career goal surge and spring test-window prep",0,[
+["Finance/Investing","SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA,CIMA,CMA,CIA,CTP"],
+["Accounting/Tax","CPA,EA (SEE),RTRP"],
+["Project/Process","PMP,CAPM,Scrum Master,Six Sigma,CSCP"],
+["Cyber/IT","CompTIA,CCNA,CISSP,AWS,Salesforce,Tech"],
+["Healthcare core licensure","NCLEX,NREMT,PTCE,MPJE/NAPLEX,NPTE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT (OTR/COTA),COMLEX,USMLE,ABIM,ANCC,AANP,PANCE","Always-on, but spikes with graduates."],
+["Education","PRAXIS,TEFL,TExES,FTCE,CSET,CBEST"],
+["Military","AFOQT,ASTB,OAR"]]],
+["February","Spring exam ramp with teacher and healthcare momentum",0,[
+["Bar","Bar","February administration; next-cycle prep begins. We are not competitive with Barbri. We address the objection: \u201CI paid for Barbri and now I have to pay separately for tutoring.\u201D"],
+["Finance","SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA,CIMA"],
+["Accounting/Tax","CPA,EA (SEE),RTRP"],
+["HR","PHR,SHRM (CP/SCP)"],
+["IT","CompTIA,CCNA,CISSP,AWS,Salesforce"],
+["Healthcare","NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT,COMLEX/USMLE,ABIM,ANCC,AANP,PANCE,MPJE/NAPLEX"],
+["Education","PRAXIS,TEFL,TExES,FTCE,CSET,CBEST"],
+["Military","AFOQT,ASTB,OAR"]]],
+["March","Spring testing; graduation ramp starts",0,[
+["Graduation-driven healthcare","NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE"],
+["Finance/Investing","SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA"],
+["Accounting/Tax","CPA,EA (SEE)"],
+["Education","PRAXIS,TExES,FTCE,CSET,CBEST,TEFL"],
+["Fitness/Wellness","NASM,MBLEX"],
+["Real Estate","Real Estate"]]],
+["April","Finish the semester, start the job",0,[
+["Healthcare licensure","NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,ABIM,ANCC,AANP,PANCE"],
+["Finance","SIE,Series Exams,CFA,CFP,FRM"],
+["Accounting/Tax","CPA,EA (SEE),RTRP"],
+["IT/Cyber","CompTIA,CCNA,CISSP,AWS"],
+["Education","PRAXIS,TExES,FTCE,CSET,CBEST"],
+["Counseling/Behavioral","NCE,CPCE,EPPP,BCABA,LMSW/LSW (ASWB)"]]],
+["May","Graduation spike, the largest for many programs",1,[
+["Healthcare","NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE,AANP/ANCC,ABIM"],
+["Bar","Bar","July cycle prep begins."],
+["Education","PRAXIS,TExES,FTCE,CSET,CBEST","Summer licensure pushes."],
+["Fitness/Wellness","NASM,MBLEX"],
+["Real Estate","Real Estate"]]],
+["June","Peak urgency month: procrastinators",1,[
+["Bar","Bar","July administration."],
+["Healthcare","NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE"],
+["Counseling/Behavioral","NCE,CPCE,EPPP,LMSW/LSW (ASWB),BCABA"],
+["IT","CompTIA,CCNA,AWS"],
+["Finance","SIE,Series Exams"]]],
+["July","Post-bar shift and fall cycle start",0,[
+["Finance (fall pipeline)","SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA,CIMA"],
+["Accounting/Tax","CPA,EA (SEE),RTRP"],
+["Project/Process","PMP,CAPM,Scrum Master,Six Sigma,CSCP"],
+["IT/Cyber","CompTIA,CCNA,CISSP,AWS,Salesforce"],
+["Healthcare","NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE","Still constant."],
+["Engineering","FE,PE"],
+["Mortgage","NMLS"]]],
+["August","Fall exam surge begins",0,[
+["Education (back-to-school)","PRAXIS,TExES,FTCE,CSET,CBEST,TEFL"],
+["Finance","SIE,Series Exams,CFA,CFP,FRM,CMT"],
+["Accounting/Tax","CPA,EA (SEE)"],
+["Engineering","FE,PE"],
+["IT/Cyber","CompTIA,CCNA,CISSP,AWS"],
+["Healthcare","NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE"],
+["Real Estate","Real Estate"]]],
+["September","One of the biggest professional cert months",1,[
+["Finance","SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA,CIMA,CPFA"],
+["Accounting/Tax","CPA,EA (SEE),CMA"],
+["HR","PHR,SHRM (CP/SCP)"],
+["IT/Cyber","CompTIA,CCNA,CISSP,AWS,Salesforce"],
+["Engineering","FE,PE"],
+["Healthcare","NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE"],
+["Counseling/Behavioral","NCE,CPCE,EPPP,LMSW/LSW (ASWB)"]]],
+["October","Year-end completion urgency starts",0,[
+["Finance","SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA"],
+["Accounting/Tax","CPA,EA (SEE)"],
+["Project/Process","PMP,CAPM,Scrum Master,Six Sigma"],
+["IT/Cyber","CompTIA,CCNA,CISSP,AWS"],
+["Healthcare","NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,ABIM"],
+["Education","PRAXIS,TExES,FTCE,CSET,CBEST"]]],
+["November","Next-year planning and winter test windows",0,[
+["Finance","SIE,Series Exams,CFA,CFP,FRM,CAIA,CIMA"],
+["Accounting/Tax","CPA,EA (SEE),RTRP"],
+["HR","PHR,SHRM (CP/SCP)"],
+["IT/Cyber","CompTIA,CCNA,CISSP,AWS"],
+["Healthcare","NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBCOT,MPJE/NAPLEX"],
+["Bar","Bar","February cycle prep begins."]]],
+["December","New-year goal setting",0,[
+["Always-on heavy hitters","NCLEX,PMP,SIE/Series,CompTIA,Real Estate,Insurance"],
+["Finance/Accounting","CPA,EA (SEE),CFP,FRM,CFA,CMA"],
+["IT/Cyber","CCNA,CISSP,AWS,Salesforce"],
+["Education","PRAXIS,TEFL"],
+["Military","AFOQT,ASTB,OAR"]]]
+];
+var E=[
+["Healthcare","NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT (OTR/COTA),MPJE,NAPLEX,COMLEX,USMLE,PANCE,AANP,ANCC,ABIM"],
+["Finance","SIE,Series Exams"],
+["Project/Process","PMP,CAPM,Scrum Master,Six Sigma,CSCP"],
+["IT/Cyber","CompTIA,CCNA,CISSP,AWS,Salesforce,Tech"],
+["Licensing","Insurance,Real Estate,NMLS"],
+["Education","PRAXIS,TExES,FTCE,CSET,CBEST"],
+["Counseling/Behavioral","LMSW/LSW (ASWB),NCE/CPCE,EPPP,BCABA"],
+["Military","AFOQT,ASTB,OAR"],
+["Fitness/Wellness","MBLEX,NASM"],
+["Other","CPC (medical coding),CTRS,CDR,RD,CIA,CTP"]];
+function chips(s){return '<div class="chips">'+s.split(',').map(function(x){return '<span>'+x+'</span>'}).join('')+'</div>'}
+var g=document.getElementById('grid'),st=document.getElementById('strip'),h='',s='';
+M.forEach(function(m){
+var id=m[0].toLowerCase();
+s+='<a href="#'+id+'"'+(m[2]?' class="peak"':'')+'>'+m[0].slice(0,3)+'</a>';
+h+='<article class="month'+(m[2]?' peak':'')+'" id="'+id+'"><div class="mh"><h2>'+m[0]+'</h2><p>'+m[1]+'</p></div><div class="rows">';
+m[3].forEach(function(r){h+='<div class="row"><div class="cat">'+r[0]+'</div>'+chips(r[1])+(r[2]?'<div class="note">'+r[2]+'</div>':'')+'</div>'});
+h+='</div></article>'});
+g.innerHTML=h;st.innerHTML=s;
+document.getElementById('ever').innerHTML=E.map(function(r){return '<div><div class="cat">'+r[0]+'</div>'+chips(r[1])+'</div>'}).join('');
+</script>
+</body>
+</html>
