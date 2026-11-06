@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prof Certs Exam Calendar</title>
+
+<style>
+:root{--bg:#f5f7fa;--surface:#fff;--ink:#14213d;--muted:#5b6678;--line:#dde3ec;--accent:#0b6e75;--accent-soft:#e0f1f2;--peak:#b4410f;--peak-soft:#fbe9df;--chip:#eef2f7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1624;--surface:#182234;--ink:#eaf0f8;--muted:#9aa7bb;--line:#2a3750;--accent:#4fc3cb;--accent-soft:#15353a;--peak:#f0a073;--peak-soft:#3a2418;--chip:#223049}}
+:root[data-theme="dark"]{--bg:#0f1624;--surface:#182234;--ink:#eaf0f8;--muted:#9aa7bb;--line:#2a3750;--accent:#4fc3cb;--accent-soft:#15353a;--peak:#f0a073;--peak-soft:#3a2418;--chip:#223049}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding:32px 20px 56px}
+header h1{font-size:clamp(26px,4vw,38px);margin:0 0 6px;font-weight:700;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);max-width:70ch}
+.strip{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;margin:28px 0 8px}
+.strip a{display:block;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 4px;text-align:center;font-size:13px;font-weight:600}
+.strip a.peak{background:var(--peak-soft);border-color:var(--peak);color:var(--peak)}
+.strip a:hover,.strip a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.legend{font-size:13px;color:var(--muted);margin:0 0 28px}
+.legend b{color:var(--peak)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
+.month{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;break-inside:avoid;display:flex;flex-direction:column}
+.month.peak{border-color:var(--peak)}
+.mh{padding:16px 18px 12px;border-bottom:1px solid var(--line);background:var(--accent-soft)}
+.month.peak .mh{background:var(--peak-soft)}
+.mh h2{margin:0;font-size:22px;font-weight:700}
+.mh p{margin:2px 0 0;font-size:14px;color:var(--muted)}
+.rows{padding:6px 18px 14px;margin:0}
+.row{padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.cat{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:5px}
+.month.peak .cat{color:var(--peak)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chips span{background:var(--chip);border-radius:4px;padding:2px 8px;font-size:12.5px;font-weight:500}
+.note{font-size:12.5px;color:var(--muted);margin-top:6px}
+.ever{margin-top:40px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px}
+.ever h2{margin:0 0 4px;font-size:22px}
+.ever>p{margin:0 0 14px;color:var(--muted);font-size:14px;max-width:80ch}
+.eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px 24px}
+footer{margin-top:28px;font-size:12.5px;color:var(--muted)}
+@media (max-width:760px){.strip{grid-template-columns:repeat(6,1fr)}.grid{grid-template-columns:1fr}}
+@media print{body{background:#fff}.strip,.legend{display:none}.month,.ever{border-color:#bbb}}
+
+.chips a{background:var(--chip);border-radius:4px;padding:2px 8px;font-size:12.5px;font-weight:500;color:inherit;text-decoration:underline;text-underline-offset:2px}
+.chips a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips .top-exam{background:#d9f5df;color:#155d2b;border:1px solid #26843e}
+.chips small{font-size:10px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Prof Certs Exam Calendar</h1>
+<p>Month-by-month view of which professional certification exams drive learner demand. Lead time is 6–8 weeks, so use each month to plan outreach for the exam windows ahead.</p>
+</header>
+<nav class="strip" id="strip" aria-label="Jump to month"></nav>
+<p class="legend"><b>Orange months</b> are the biggest demand months: May (graduation spike), June (peak urgency) and September.</p>
+<main class="grid" id="grid"></main>
+<section class="ever">
+<h2>Always-on exams (evergreens)</h2>
+<p>Learners test year-round or have frequent windows, so these exams are buyable in any month.</p>
+<div class="eg" id="ever"></div>
+</section>
+<footer>Source: Month-by-month Prof Certs Exam calendar (6–8 week lead time).</footer>
+</div>
+<script>
+window.EXAM_CONFIG = {
+  "sourceUrl": "https://profcertsexamcalendar.netlify.app/",
+  "retrievedDate": "2026-11-05",
+  "ranking": {
+    "metric": null,
+    "windowStart": null,
+    "windowEnd": null,
+    "source": null,
+    "confirmed": false
+  },
+  "labelToExamIds": {
+    "AANP": [
+      "aanp"
+    ],
+    "AANP/ANCC": [
+      "aanp",
+      "ancc"
+    ],
+    "ABIM": [
+      "abim"
+    ],
+    "AFOQT": [
+      "afoqt"
+    ],
+    "ANCC": [
+      "ancc"
+    ],
+    "ARDMS": [
+      "ardms"
+    ],
+    "ARRT": [
+      "arrt"
+    ],
+    "ASCP": [
+      "ascp"
+    ],
+    "ASTB": [
+      "astb"
+    ],
+    "AWS": [
+      "aws"
+    ],
+    "BCABA": [
+      "bcaba"
+    ],
+    "Bar": [
+      "bar"
+    ],
+    "CAIA": [
+      "caia"
+    ],
+    "CAPM": [
+      "capm"
+    ],
+    "CBEST": [
+      "cbest"
+    ],
+    "CCNA": [
+      "ccna"
+    ],
+    "CDR": [
+      "cdr"
+    ],
+    "CFA": [
+      "cfa"
+    ],
+    "CFP": [
+      "cfp"
+    ],
+    "CIA": [
+      "cia"
+    ],
+    "CIMA": [
+      "cima"
+    ],
+    "CISSP": [
+      "cissp"
+    ],
+    "CMA": [
+      "cma"
+    ],
+    "CMT": [
+      "cmt"
+    ],
+    "COMLEX": [
+      "comlex"
+    ],
+    "COMLEX/USMLE": [
+      "comlex",
+      "usmle"
+    ],
+    "CPA": [
+      "cpa"
+    ],
+    "CPC (medical coding)": [
+      "cpc-medical-coding"
+    ],
+    "CPCE": [
+      "cpce"
+    ],
+    "CPFA": [
+      "cpfa"
+    ],
+    "CSCP": [
+      "cscp"
+    ],
+    "CSET": [
+      "cset"
+    ],
+    "CTP": [
+      "ctp"
+    ],
+    "CTRS": [
+      "ctrs"
+    ],
+    "CompTIA": [
+      "comptia"
+    ],
+    "EA (SEE)": [
+      "ea-see"
+    ],
+    "EPPP": [
+      "eppp"
+    ],
+    "FE": [
+      "fe"
+    ],
+    "FRM": [
+      "frm"
+    ],
+    "FTCE": [
+      "ftce"
+    ],
+    "Insurance": [
+      "insurance"
+    ],
+    "LMSW/LSW (ASWB)": [
+      "lmsw-lsw-aswb"
+    ],
+    "MBLEX": [
+      "mblex"
+    ],
+    "MPJE": [
+      "mpje"
+    ],
+    "MPJE/NAPLEX": [
+      "mpje",
+      "naplex"
+    ],
+    "NAPLEX": [
+      "naplex"
+    ],
+    "NASM": [
+      "nasm"
+    ],
+    "NBCOT": [
+      "nbcot"
+    ],
+    "NBCOT (OTR/COTA)": [
+      "nbcot"
+    ],
+    "NBDHE/NBDE": [
+      "nbdhe-nbde"
+    ],
+    "NCE": [
+      "nce"
+    ],
+    "NCE/CPCE": [
+      "nce",
+      "cpce"
+    ],
+    "NCLEX": [
+      "nclex"
+    ],
+    "NMLS": [
+      "nmls"
+    ],
+    "NPTE": [
+      "npte"
+    ],
+    "NREMT": [
+      "nremt"
+    ],
+    "OAR": [
+      "oar"
+    ],
+    "PANCE": [
+      "pance"
+    ],
+    "PE": [
+      "pe"
+    ],
+    "PHR": [
+      "phr"
+    ],
+    "PMP": [
+      "pmp"
+    ],
+    "PRAXIS": [
+      "praxis"
+    ],
+    "PTCE": [
+      "ptce"
+    ],
+    "RD": [
+      "rd"
+    ],
+    "RTRP": [
+      "rtrp"
+    ],
+    "Real Estate": [
+      "real-estate"
+    ],
+    "SHRM (CP/SCP)": [
+      "shrm-cp-scp"
+    ],
+    "SIE": [
+      "sie"
+    ],
+    "SIE/Series": [
+      "sie",
+      "series-exams"
+    ],
+    "Salesforce": [
+      "salesforce"
+    ],
+    "Scrum Master": [
+      "scrum-master"
+    ],
+    "Series Exams": [
+      "series-exams"
+    ],
+    "Six Sigma": [
+      "six-sigma"
+    ],
+    "TEFL": [
+      "tefl"
+    ],
+    "TExES": [
+      "texes"
+    ],
+    "Tech": [
+      "tech"
+    ],
+    "USMLE": [
+      "usmle"
+    ],
+    "BCBA": [
+      "bcba"
+    ]
+  },
+  "exams": {
+    "aanp": {
+      "label": "AANP",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A2:K2",
+      "top20Confirmed": false
+    },
+    "abim": {
+      "label": "ABIM",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A3:K3",
+      "top20Confirmed": false
+    },
+    "afoqt": {
+      "label": "AFOQT",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A4:K4",
+      "top20Confirmed": false
+    },
+    "ancc": {
+      "label": "ANCC",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A5:K5",
+      "top20Confirmed": false
+    },
+    "ardms": {
+      "label": "ARDMS",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A6:K6",
+      "top20Confirmed": false
+    },
+    "arrt": {
+      "label": "ARRT",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A7:K7",
+      "top20Confirmed": false
+    },
+    "ascp": {
+      "label": "ASCP",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A8:K8",
+      "top20Confirmed": false
+    },
+    "astb": {
+      "label": "ASTB",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A9:K9",
+      "top20Confirmed": false
+    },
+    "aws": {
+      "label": "AWS",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A10:K10",
+      "top20Confirmed": false
+    },
+    "bcaba": {
+      "label": "BCABA",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A11:K11",
+      "top20Confirmed": false
+    },
+    "bar": {
+      "label": "Bar",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A12:K12",
+      "top20Confirmed": false
+    },
+    "caia": {
+      "label": "CAIA",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A13:K13",
+      "top20Confirmed": false
+    },
+    "capm": {
+      "label": "CAPM",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A14:K14",
+      "top20Confirmed": false
+    },
+    "cbest": {
+      "label": "CBEST",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A15:K15",
+      "top20Confirmed": false
+    },
+    "ccna": {
+      "label": "CCNA",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A16:K16",
+      "top20Confirmed": false
+    },
+    "cdr": {
+      "label": "CDR",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A17:K17",
+      "top20Confirmed": false
+    },
+    "cfa": {
+      "label": "CFA",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A18:K18",
+      "top20Confirmed": false
+    },
+    "cfp": {
+      "label": "CFP",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A19:K19",
+      "top20Confirmed": false
+    },
+    "cia": {
+      "label": "CIA",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A20:K20",
+      "top20Confirmed": false
+    },
+    "cima": {
+      "label": "CIMA",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A21:K21",
+      "top20Confirmed": false
+    },
+    "cissp": {
+      "label": "CISSP",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A22:K22",
+      "top20Confirmed": false
+    },
+    "cma": {
+      "label": "CMA",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A23:K23",
+      "top20Confirmed": false
+    },
+    "cmt": {
+      "label": "CMT",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A24:K24",
+      "top20Confirmed": false
+    },
+    "comlex": {
+      "label": "COMLEX",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A25:K25",
+      "top20Confirmed": false
+    },
+    "cpa": {
+      "label": "CPA",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A26:K26",
+      "top20Confirmed": false
+    },
+    "cpc-medical-coding": {
+      "label": "CPC (medical coding)",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A27:K27",
+      "top20Confirmed": false
+    },
+    "cpce": {
+      "label": "CPCE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A28:K28",
+      "top20Confirmed": false
+    },
+    "cpfa": {
+      "label": "CPFA",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A29:K29",
+      "top20Confirmed": false
+    },
+    "cscp": {
+      "label": "CSCP",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A30:K30",
+      "top20Confirmed": false
+    },
+    "cset": {
+      "label": "CSET",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A31:K31",
+      "top20Confirmed": false
+    },
+    "ctp": {
+      "label": "CTP",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A32:K32",
+      "top20Confirmed": false
+    },
+    "ctrs": {
+      "label": "CTRS",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A33:K33",
+      "top20Confirmed": false
+    },
+    "comptia": {
+      "label": "CompTIA",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A34:K34",
+      "top20Confirmed": false
+    },
+    "ea-see": {
+      "label": "EA (SEE)",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A35:K35",
+      "top20Confirmed": false
+    },
+    "eppp": {
+      "label": "EPPP",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A36:K36",
+      "top20Confirmed": false
+    },
+    "fe": {
+      "label": "FE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A37:K37",
+      "top20Confirmed": false
+    },
+    "frm": {
+      "label": "FRM",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A38:K38",
+      "top20Confirmed": false
+    },
+    "ftce": {
+      "label": "FTCE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A39:K39",
+      "top20Confirmed": false
+    },
+    "insurance": {
+      "label": "Insurance",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A40:K40",
+      "top20Confirmed": false
+    },
+    "lmsw-lsw-aswb": {
+      "label": "LMSW/LSW (ASWB)",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A41:K41",
+      "top20Confirmed": false
+    },
+    "mblex": {
+      "label": "MBLEX",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A42:K42",
+      "top20Confirmed": false
+    },
+    "mpje": {
+      "label": "MPJE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A43:K43",
+      "top20Confirmed": false
+    },
+    "naplex": {
+      "label": "NAPLEX",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A44:K44",
+      "top20Confirmed": false
+    },
+    "nasm": {
+      "label": "NASM",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A45:K45",
+      "top20Confirmed": false
+    },
+    "nbcot": {
+      "label": "NBCOT",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A46:K46",
+      "top20Confirmed": false
+    },
+    "nbdhe-nbde": {
+      "label": "NBDHE/NBDE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A47:K47",
+      "top20Confirmed": false
+    },
+    "nce": {
+      "label": "NCE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A48:K48",
+      "top20Confirmed": false
+    },
+    "nclex": {
+      "label": "NCLEX",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A49:K49",
+      "top20Confirmed": false
+    },
+    "nmls": {
+      "label": "NMLS",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A50:K50",
+      "top20Confirmed": false
+    },
+    "npte": {
+      "label": "NPTE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A51:K51",
+      "top20Confirmed": false
+    },
+    "nremt": {
+      "label": "NREMT",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A52:K52",
+      "top20Confirmed": false
+    },
+    "oar": {
+      "label": "OAR",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A53:K53",
+      "top20Confirmed": false
+    },
+    "pance": {
+      "label": "PANCE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A54:K54",
+      "top20Confirmed": false
+    },
+    "pe": {
+      "label": "PE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A55:K55",
+      "top20Confirmed": false
+    },
+    "phr": {
+      "label": "PHR",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A56:K56",
+      "top20Confirmed": false
+    },
+    "pmp": {
+      "label": "PMP",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A57:K57",
+      "top20Confirmed": false
+    },
+    "praxis": {
+      "label": "PRAXIS",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A58:K58",
+      "top20Confirmed": false
+    },
+    "ptce": {
+      "label": "PTCE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A59:K59",
+      "top20Confirmed": false
+    },
+    "rd": {
+      "label": "RD",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A60:K60",
+      "top20Confirmed": false
+    },
+    "rtrp": {
+      "label": "RTRP",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A61:K61",
+      "top20Confirmed": false
+    },
+    "real-estate": {
+      "label": "Real Estate",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A62:K62",
+      "top20Confirmed": false
+    },
+    "shrm-cp-scp": {
+      "label": "SHRM (CP/SCP)",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A63:K63",
+      "top20Confirmed": false
+    },
+    "sie": {
+      "label": "SIE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A64:K64",
+      "top20Confirmed": false
+    },
+    "salesforce": {
+      "label": "Salesforce",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A65:K65",
+      "top20Confirmed": false
+    },
+    "scrum-master": {
+      "label": "Scrum Master",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A66:K66",
+      "top20Confirmed": false
+    },
+    "series-exams": {
+      "label": "Series Exams",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A67:K67",
+      "top20Confirmed": false
+    },
+    "six-sigma": {
+      "label": "Six Sigma",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A68:K68",
+      "top20Confirmed": false
+    },
+    "tefl": {
+      "label": "TEFL",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A69:K69",
+      "top20Confirmed": false
+    },
+    "texes": {
+      "label": "TExES",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A70:K70",
+      "top20Confirmed": false
+    },
+    "tech": {
+      "label": "Tech",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A71:K71",
+      "top20Confirmed": false
+    },
+    "usmle": {
+      "label": "USMLE",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A72:K72",
+      "top20Confirmed": false
+    },
+    "bcba": {
+      "label": "BCBA",
+      "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1HR1l0KE9gQi6BKONoiXCU4luJfjQmfHKupyWqw6j5Nk/edit#gid=1966402542&range=A73:K73",
+      "top20Confirmed": false
+    }
+  }
+};
+
+</script>
+<script>
+var M=[
+  [
+    "January",
+    "New-year career goal surge and spring test-window prep",
+    0,
+    [
+      [
+        "Finance/Investing",
+        "SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA,CIMA,CMA,CIA,CTP"
+      ],
+      [
+        "Accounting/Tax",
+        "CPA,EA (SEE),RTRP"
+      ],
+      [
+        "Project/Process",
+        "PMP,CAPM,Scrum Master,Six Sigma,CSCP"
+      ],
+      [
+        "Cyber/IT",
+        "CompTIA,CCNA,CISSP,AWS,Salesforce,Tech"
+      ],
+      [
+        "Healthcare core licensure",
+        "NCLEX,NREMT,PTCE,MPJE/NAPLEX,NPTE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT (OTR/COTA),COMLEX,USMLE,ABIM,ANCC,AANP,PANCE",
+        "Always-on, but spikes with graduates."
+      ],
+      [
+        "Education",
+        "PRAXIS,TEFL,TExES,FTCE,CSET,CBEST"
+      ],
+      [
+        "Military",
+        "AFOQT,ASTB,OAR"
+      ]
+    ]
+  ],
+  [
+    "February",
+    "Spring exam ramp with teacher and healthcare momentum",
+    0,
+    [
+      [
+        "Bar",
+        "Bar",
+        "February administration; next-cycle prep begins."
+      ],
+      [
+        "Finance",
+        "SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA,CIMA"
+      ],
+      [
+        "Accounting/Tax",
+        "CPA,EA (SEE),RTRP"
+      ],
+      [
+        "HR",
+        "PHR,SHRM (CP/SCP)"
+      ],
+      [
+        "IT",
+        "CompTIA,CCNA,CISSP,AWS,Salesforce"
+      ],
+      [
+        "Healthcare",
+        "NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT,COMLEX/USMLE,ABIM,ANCC,AANP,PANCE,MPJE/NAPLEX"
+      ],
+      [
+        "Education",
+        "PRAXIS,TEFL,TExES,FTCE,CSET,CBEST"
+      ],
+      [
+        "Military",
+        "AFOQT,ASTB,OAR"
+      ]
+    ]
+  ],
+  [
+    "March",
+    "Spring testing; graduation ramp starts",
+    0,
+    [
+      [
+        "Graduation-driven healthcare",
+        "NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE"
+      ],
+      [
+        "Finance/Investing",
+        "SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA"
+      ],
+      [
+        "Accounting/Tax",
+        "CPA,EA (SEE)"
+      ],
+      [
+        "Education",
+        "PRAXIS,TExES,FTCE,CSET,CBEST,TEFL"
+      ],
+      [
+        "Fitness/Wellness",
+        "NASM,MBLEX"
+      ],
+      [
+        "Real Estate",
+        "Real Estate"
+      ]
+    ]
+  ],
+  [
+    "April",
+    "Finish the semester, start the job",
+    0,
+    [
+      [
+        "Healthcare licensure",
+        "NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,ABIM,ANCC,AANP,PANCE"
+      ],
+      [
+        "Finance",
+        "SIE,Series Exams,CFA,CFP,FRM"
+      ],
+      [
+        "Accounting/Tax",
+        "CPA,EA (SEE),RTRP"
+      ],
+      [
+        "IT/Cyber",
+        "CompTIA,CCNA,CISSP,AWS"
+      ],
+      [
+        "Education",
+        "PRAXIS,TExES,FTCE,CSET,CBEST"
+      ],
+      [
+        "Counseling/Behavioral",
+        "NCE,CPCE,EPPP,BCABA,LMSW/LSW (ASWB),BCBA"
+      ]
+    ]
+  ],
+  [
+    "May",
+    "Graduation spike, the largest for many programs",
+    1,
+    [
+      [
+        "Healthcare",
+        "NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE,AANP/ANCC,ABIM"
+      ],
+      [
+        "Bar",
+        "Bar",
+        "July cycle prep begins."
+      ],
+      [
+        "Education",
+        "PRAXIS,TExES,FTCE,CSET,CBEST",
+        "Summer licensure pushes."
+      ],
+      [
+        "Fitness/Wellness",
+        "NASM,MBLEX"
+      ],
+      [
+        "Real Estate",
+        "Real Estate"
+      ]
+    ]
+  ],
+  [
+    "June",
+    "Peak urgency month: procrastinators",
+    1,
+    [
+      [
+        "Bar",
+        "Bar",
+        "July administration."
+      ],
+      [
+        "Healthcare",
+        "NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE"
+      ],
+      [
+        "Counseling/Behavioral",
+        "NCE,CPCE,EPPP,LMSW/LSW (ASWB),BCABA,BCBA"
+      ],
+      [
+        "IT",
+        "CompTIA,CCNA,AWS"
+      ],
+      [
+        "Finance",
+        "SIE,Series Exams"
+      ]
+    ]
+  ],
+  [
+    "July",
+    "Post-bar shift and fall cycle start",
+    0,
+    [
+      [
+        "Finance (fall pipeline)",
+        "SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA,CIMA"
+      ],
+      [
+        "Accounting/Tax",
+        "CPA,EA (SEE),RTRP"
+      ],
+      [
+        "Project/Process",
+        "PMP,CAPM,Scrum Master,Six Sigma,CSCP"
+      ],
+      [
+        "IT/Cyber",
+        "CompTIA,CCNA,CISSP,AWS,Salesforce"
+      ],
+      [
+        "Healthcare",
+        "NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE",
+        "Still constant."
+      ],
+      [
+        "Engineering",
+        "FE,PE"
+      ],
+      [
+        "Mortgage",
+        "NMLS"
+      ]
+    ]
+  ],
+  [
+    "August",
+    "Fall exam surge begins",
+    0,
+    [
+      [
+        "Education (back-to-school)",
+        "PRAXIS,TExES,FTCE,CSET,CBEST,TEFL"
+      ],
+      [
+        "Finance",
+        "SIE,Series Exams,CFA,CFP,FRM,CMT"
+      ],
+      [
+        "Accounting/Tax",
+        "CPA,EA (SEE)"
+      ],
+      [
+        "Engineering",
+        "FE,PE"
+      ],
+      [
+        "IT/Cyber",
+        "CompTIA,CCNA,CISSP,AWS"
+      ],
+      [
+        "Healthcare",
+        "NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE"
+      ],
+      [
+        "Real Estate",
+        "Real Estate"
+      ]
+    ]
+  ],
+  [
+    "September",
+    "One of the biggest professional cert months",
+    1,
+    [
+      [
+        "Finance",
+        "SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA,CIMA,CPFA"
+      ],
+      [
+        "Accounting/Tax",
+        "CPA,EA (SEE),CMA"
+      ],
+      [
+        "HR",
+        "PHR,SHRM (CP/SCP)"
+      ],
+      [
+        "IT/Cyber",
+        "CompTIA,CCNA,CISSP,AWS,Salesforce"
+      ],
+      [
+        "Engineering",
+        "FE,PE"
+      ],
+      [
+        "Healthcare",
+        "NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,PANCE"
+      ],
+      [
+        "Counseling/Behavioral",
+        "NCE,CPCE,EPPP,LMSW/LSW (ASWB),BCBA"
+      ]
+    ]
+  ],
+  [
+    "October",
+    "Year-end completion urgency starts",
+    0,
+    [
+      [
+        "Finance",
+        "SIE,Series Exams,CFA,CFP,FRM,CMT,CAIA"
+      ],
+      [
+        "Accounting/Tax",
+        "CPA,EA (SEE)"
+      ],
+      [
+        "Project/Process",
+        "PMP,CAPM,Scrum Master,Six Sigma"
+      ],
+      [
+        "IT/Cyber",
+        "CompTIA,CCNA,CISSP,AWS"
+      ],
+      [
+        "Healthcare",
+        "NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBCOT,MPJE/NAPLEX,COMLEX/USMLE,ABIM"
+      ],
+      [
+        "Education",
+        "PRAXIS,TExES,FTCE,CSET,CBEST"
+      ]
+    ]
+  ],
+  [
+    "November",
+    "Next-year planning and winter test windows",
+    0,
+    [
+      [
+        "Finance",
+        "SIE,Series Exams,CFA,CFP,FRM,CAIA,CIMA"
+      ],
+      [
+        "Accounting/Tax",
+        "CPA,EA (SEE),RTRP"
+      ],
+      [
+        "HR",
+        "PHR,SHRM (CP/SCP)"
+      ],
+      [
+        "IT/Cyber",
+        "CompTIA,CCNA,CISSP,AWS"
+      ],
+      [
+        "Healthcare",
+        "NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBCOT,MPJE/NAPLEX"
+      ],
+      [
+        "Bar",
+        "Bar",
+        "February cycle prep begins."
+      ]
+    ]
+  ],
+  [
+    "December",
+    "New-year goal setting",
+    0,
+    [
+      [
+        "Always-on heavy hitters",
+        "NCLEX,PMP,SIE/Series,CompTIA,Real Estate,Insurance"
+      ],
+      [
+        "Finance/Accounting",
+        "CPA,EA (SEE),CFP,FRM,CFA,CMA"
+      ],
+      [
+        "IT/Cyber",
+        "CCNA,CISSP,AWS,Salesforce"
+      ],
+      [
+        "Education",
+        "PRAXIS,TEFL"
+      ],
+      [
+        "Military",
+        "AFOQT,ASTB,OAR"
+      ]
+    ]
+  ]
+];
+var E=[
+  [
+    "Healthcare",
+    "NCLEX,NREMT,NPTE,PTCE,ARRT,ARDMS,ASCP,NBDHE/NBDE,NBCOT (OTR/COTA),MPJE,NAPLEX,COMLEX,USMLE,PANCE,AANP,ANCC,ABIM"
+  ],
+  [
+    "Finance",
+    "SIE,Series Exams"
+  ],
+  [
+    "Project/Process",
+    "PMP,CAPM,Scrum Master,Six Sigma,CSCP"
+  ],
+  [
+    "IT/Cyber",
+    "CompTIA,CCNA,CISSP,AWS,Salesforce,Tech"
+  ],
+  [
+    "Licensing",
+    "Insurance,Real Estate,NMLS"
+  ],
+  [
+    "Education",
+    "PRAXIS,TExES,FTCE,CSET,CBEST"
+  ],
+  [
+    "Counseling/Behavioral",
+    "LMSW/LSW (ASWB),NCE/CPCE,EPPP,BCABA,BCBA"
+  ],
+  [
+    "Military",
+    "AFOQT,ASTB,OAR"
+  ],
+  [
+    "Fitness/Wellness",
+    "MBLEX,NASM"
+  ],
+  [
+    "Other",
+    "CPC (medical coding),CTRS,CDR,RD,CIA,CTP"
+  ]
+];
+function escapeHtml(value){return String(value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function spreadsheetUrl(value){try{var u=new URL(value);return u.protocol==='https:'&&u.hostname==='docs.google.com'&&u.pathname.indexOf('/spreadsheets/d/')===0?u.href:null}catch(e){return null}}
+function chips(s){
+ var cfg=window.EXAM_CONFIG||{labelToExamIds:{},exams:{},ranking:{}};
+ return '<div class="chips">'+s.split(',').map(function(label){
+  var ids=cfg.labelToExamIds[label];
+  if(!ids)return '<span>'+escapeHtml(label)+'</span>';
+  return ids.map(function(id){
+   var exam=cfg.exams[id]; if(!exam)return '<span>'+escapeHtml(label)+'</span>';
+   var top=cfg.ranking.confirmed===true&&exam.top20Confirmed===true;
+   var url=spreadsheetUrl(exam.spreadsheetUrl), name=escapeHtml(exam.label);
+   var attrs=' data-exam-id="'+escapeHtml(id)+'"'+(top?' class="top-exam"':'');
+   var badge=top?' <small aria-label="Top 20 seller">Top 20</small>':'';
+   return url?'<a'+attrs+' href="'+escapeHtml(url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+name+' spreadsheet (opens in a new tab)">'+name+badge+'</a>':'<span'+attrs+' title="Spreadsheet link pending verification">'+name+badge+'</span>';
+  }).join('');
+ }).join('')+'</div>';
+}
+var g=document.getElementById('grid'),st=document.getElementById('strip'),h='',s='';
+M.forEach(function(m){
+var id=m[0].toLowerCase();
+s+='<a href="#'+id+'"'+(m[2]?' class="peak"':'')+'>'+m[0].slice(0,3)+'</a>';
+h+='<article class="month'+(m[2]?' peak':'')+'" id="'+id+'"><div class="mh"><h2>'+m[0]+'</h2><p>'+m[1]+'</p></div><div class="rows">';
+m[3].forEach(function(r){h+='<div class="row"><div class="cat">'+r[0]+'</div>'+chips(r[1])+(r[2]?'<div class="note">'+r[2]+'</div>':'')+'</div>'});
+h+='</div></article>'});
+g.innerHTML=h;st.innerHTML=s;
+document.getElementById('ever').innerHTML=E.map(function(r){return '<div><div class="cat">'+r[0]+'</div>'+chips(r[1])+'</div>'}).join('');
+</script>
+</body>
+</html>
